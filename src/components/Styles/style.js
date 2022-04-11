@@ -89,6 +89,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 20
+    },
+    NoDataImage: {
+        width: Dimensions.get('screen').width,
+        height: 200,
+        marginTop: 100,
+        resizeMode: 'contain'
+    },
+    NoDataText: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: 'black',
+        textAlign: 'center'
     }
 })
 

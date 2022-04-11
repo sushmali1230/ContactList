@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, TouchableOpacity, Text, TextInput, PermissionsAndroid, ToastAndroid } from 'react-native';
+import { View, FlatList, TouchableOpacity, Text, TextInput, PermissionsAndroid, ToastAndroid, Image } from 'react-native';
 import CardView from 'react-native-cardview';
 import { styles } from '../../components/Styles/style';
 import EditCustomer from '../../../assets/Icons/editcustomer';
@@ -7,6 +7,7 @@ import AddCustomer from '../../../assets/Icons/addcustomer';
 import NameCustomer from '../../../assets/Icons/namecustomer';
 import DOBCustomer from '../../../assets/Icons/dobcustomer';
 import PhoneCustomer from '../../../assets/Icons/phonecustomer';
+import SearchCustomer from '../../../assets/Icons/searchcustomer';
 import CloseCustomerDialogButton from '../../../assets/Icons/closecustomerdialog';
 import { Dialog } from 'react-native-simple-dialogs';
 import { GreyColor } from '../../components/Styles/AppColors';
@@ -65,8 +66,11 @@ const request_runtime_permission = async () => {
 
 
 const Dashboard = () => {
+    const [allcontacts, setAllContacts] = useState([]);
     const [contacts, setContacts] = useState([]);
     const [dialogAddCustomerBool, setDialogAddCustomerBool] = useState(false);
+    const [noDataBool, setNoDataBool] = useState(false);
+    const [customerNameSearch, setCustomerNameSearch] = useState("");
     const [customerName, setCustomerName] = useState("");
     const [customerDOB, setCustomerDOB] = useState("");
     const [customerMobile, setCustomerMobile] = useState("");
@@ -96,6 +100,24 @@ const Dashboard = () => {
         }
     }
 
+    function searchText (e) {
+        let text = e.toLowerCase()
+        let customerscontacts = contacts
+        let filteredName = customerscontacts.filter((item) => {
+          return item.name.toLowerCase().match(text)
+        })
+        if (!text || text === '') {
+            setContacts(allcontacts)
+        } else if (!Array.isArray(filteredName) && !filteredName.length) {
+            // set no data flag to true so as to render flatlist conditionally
+            setNoDataBool(true);
+            setContacts([])
+        } else if (Array.isArray(filteredName)) {
+            setNoDataBool(false);
+            setContacts(filteredName)
+        }
+    }
+
     function getData () {
         try {
             db.transaction(async (tx) => {
@@ -108,8 +130,13 @@ const Dashboard = () => {
                         for (i = 0; i < results.rows.length; i++) {
                             tempResult.push(results.rows.item(i))
                         }
+                        setAllContacts(tempResult);
                         setContacts(tempResult);
-                        console.log(contacts);
+                        if (tempResult.length === 0) {
+                            setNoDataBool(true)
+                        } else {
+                            setNoDataBool(false)
+                        }
                     }
                 )
             })
@@ -177,9 +204,27 @@ const Dashboard = () => {
                 </View>
             </Dialog>
             <Text style={styles.titleTextBold}>Customers</Text>
+            <View style={styles.textInputLayout}>
+                <SearchCustomer width={23} height={23} marginVertical={15} marginLeft={8} marginRight={12}/>
+                <TextInput
+                    style={styles.textNormal}
+                    value={customerNameSearch}
+                    placeholderTextColor={GreyColor}
+                    placeholder="Search Customer Name..."
+                    onChangeText={(text) => {setCustomerNameSearch(text), searchText(text)}}
+                    numberOfLines={1}>
+
+                </TextInput>
+            </View>
+            {noDataBool === true ? 
+            <View>
+                <Image style={styles.NoDataImage} source={require('../../../assets/Images/data-not-found.png')}></Image>
+                <Text style={styles.NoDataText}>No Customers Found</Text>
+            </View>
+            :
             <FlatList
                 data={contacts}
-                renderItem={renderContact}/>
+                renderItem={renderContact}/>}
             <TouchableOpacity style={styles.addContactButton} onPress={() => setDialogAddCustomerBool(true)}>
                 <AddCustomer width={65} height={65}/>
             </TouchableOpacity>
