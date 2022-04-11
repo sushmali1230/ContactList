@@ -10,7 +10,7 @@ import PhoneCustomer from '../../../assets/Icons/phonecustomer';
 import CloseCustomerDialogButton from '../../../assets/Icons/closecustomerdialog';
 import { Dialog } from 'react-native-simple-dialogs';
 import { GreyColor } from '../../components/Styles/AppColors';
-import { db, createTable } from '../../SQlite/sqlitefunctions';
+import { db, createTable, DataAdd, DataFetch } from '../../SQlite/sqlitefunctions';
 import { TextInputMask } from 'react-native-masked-text';
 
 const renderContact = ({ item }) => {
@@ -86,21 +86,13 @@ const Dashboard = () => {
         } else if (customerDOB.trim().length < 10) {
             ToastAndroid.show("Please add proper customer date of birth.", ToastAndroid.SHORT);
         } else {
-            try {
-                await db.transaction(async (tx) => {
-                    await tx.executeSql(
-                        "INSERT INTO Customers (name, dob, phone) VALUES (?,?,?)",[customerName, customerDOB, customerMobile]
-                    )
-                    ToastAndroid.show("Customer Added", ToastAndroid.SHORT);
-                    setCustomerName("");
-                    setCustomerMobile("");
-                    setCustomerDOB("");
-                    setDialogAddCustomerBool(false);
-                    getData();
-                })
-            } catch (error) {
-                console.log(error);
-            }
+            DataAdd(customerName, customerDOB, customerMobile);
+            ToastAndroid.show("Customer Added", ToastAndroid.SHORT);
+            setCustomerName("");
+            setCustomerMobile("");
+            setCustomerDOB("");
+            setDialogAddCustomerBool(false);
+            getData();
         }
     }
 
@@ -123,7 +115,7 @@ const Dashboard = () => {
             })
         } catch (error) {
             console.log(error);
-        }
+        }    
     }
 
     return (

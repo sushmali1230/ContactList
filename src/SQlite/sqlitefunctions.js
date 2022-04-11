@@ -18,3 +18,16 @@ export const createTable = () => {
         )
     })
 }
+
+export const DataAdd = async (customerName, customerDOB, customerMobile) => {
+    try {
+        await db.transaction(async (tx) => {
+            await tx.executeSql(
+                "INSERT INTO Customers (name, dob, phone) VALUES (?,?,?)",[customerName, customerDOB, customerMobile]
+            )
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
