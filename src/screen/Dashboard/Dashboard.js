@@ -69,7 +69,6 @@ const Dashboard = () => {
     const [allcontacts, setAllContacts] = useState([]);
     const [contacts, setContacts] = useState([]);
     const [dialogAddCustomerBool, setDialogAddCustomerBool] = useState(false);
-    const [noDataBool, setNoDataBool] = useState(false);
     const [customerNameSearch, setCustomerNameSearch] = useState("");
     const [customerName, setCustomerName] = useState("");
     const [customerDOB, setCustomerDOB] = useState("");
@@ -109,11 +108,8 @@ const Dashboard = () => {
         if (!text || text === '') {
             setContacts(allcontacts)
         } else if (!Array.isArray(filteredName) && !filteredName.length) {
-            // set no data flag to true so as to render flatlist conditionally
-            setNoDataBool(true);
             setContacts([])
         } else if (Array.isArray(filteredName)) {
-            setNoDataBool(false);
             setContacts(filteredName)
         }
     }
@@ -132,11 +128,6 @@ const Dashboard = () => {
                         }
                         setAllContacts(tempResult);
                         setContacts(tempResult);
-                        if (tempResult.length === 0) {
-                            setNoDataBool(true)
-                        } else {
-                            setNoDataBool(false)
-                        }
                     }
                 )
             })
@@ -216,15 +207,9 @@ const Dashboard = () => {
 
                 </TextInput>
             </View>
-            {noDataBool === true ? 
-            <View>
-                <Image style={styles.NoDataImage} source={require('../../../assets/Images/data-not-found.png')}></Image>
-                <Text style={styles.NoDataText}>No Customers Found</Text>
-            </View>
-            :
             <FlatList
                 data={contacts}
-                renderItem={renderContact}/>}
+                renderItem={renderContact}/>
             <TouchableOpacity style={styles.addContactButton} onPress={() => setDialogAddCustomerBool(true)}>
                 <AddCustomer width={65} height={65}/>
             </TouchableOpacity>
